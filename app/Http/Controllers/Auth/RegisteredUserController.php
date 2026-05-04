@@ -42,6 +42,8 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        \App\Models\Customer::create(['user_id' => $user->id]);
+
         event(new Registered($user));
 
         // Auth::login($user); // Commented out to require manual login after registration

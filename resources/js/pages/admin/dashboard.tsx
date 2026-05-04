@@ -99,8 +99,8 @@ export default function AdminDashboard({ stats, recentRequests = [] }: AdminDash
                                             </td>
                                             <td className="whitespace-nowrap px-5 py-4"><StatusBadge status={req.status} /></td>
                                             <td className="whitespace-nowrap px-5 py-4">
-                                                <Link href={`/admin/rentals/${req.id}`} className="text-sm font-medium text-primary hover:underline">
-                                                    View
+                                                <Link href={`/admin/rentals?id=${req.id}`} className="text-sm font-bold text-primary hover:underline">
+                                                    View Details
                                                 </Link>
                                             </td>
                                         </tr>

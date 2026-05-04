@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Rental extends Model
 {
@@ -17,6 +18,12 @@ class Rental extends Model
         'end_date',
         'total_amount',
         'status',
+        'id_document_path',
+        'license_document_path',
+        'fulfillment_type',
+        'pickup_location',
+        'return_location',
+        'fulfillment_notes',
     ];
 
     protected function casts(): array
@@ -36,5 +43,10 @@ class Rental extends Model
     public function motorcycle(): BelongsTo
     {
         return $this->belongsTo(Motorcycle::class);
+    }
+
+    public function payment(): HasOne
+    {
+        return $this->hasOne(Payment::class);
     }
 }
