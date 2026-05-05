@@ -41,7 +41,25 @@ const howItWorks = [
 
 import { type Motorcycle } from '@/types';
 
-export default function Welcome({ motorcycles = [] }: { motorcycles: Motorcycle[] }) {
+interface SystemReview {
+    id: number;
+    rating: number;
+    comment: string;
+    customer: {
+        user: {
+            name: string;
+        };
+    };
+    created_at: string;
+}
+
+export default function Welcome({ 
+    motorcycles = [], 
+    reviews = [] 
+}: { 
+    motorcycles: Motorcycle[];
+    reviews: SystemReview[];
+}) {
     const [searchQuery, setSearchQuery] = useState('');
 
     return (
@@ -121,7 +139,9 @@ export default function Welcome({ motorcycles = [] }: { motorcycles: Motorcycle[
                                                 </div>
                                                 <div className="flex-1">
                                                     <p className="text-sm font-semibold">{bike.brand} {bike.model}</p>
-                                                    <p className="text-xs text-muted-foreground">{bike.category} • {bike.year}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {typeof bike.category === 'string' ? bike.category : bike.category?.name || 'Uncategorized'} • {bike.year}
+                                                    </p>
                                                 </div>
                                                 <p className="text-sm font-bold text-primary">₱{Number(bike.daily_rate).toLocaleString()}/day</p>
                                             </div>
@@ -222,7 +242,9 @@ export default function Welcome({ motorcycles = [] }: { motorcycles: Motorcycle[
                                         <span className="text-xs text-muted-foreground">{bike.year}</span>
                                     </div>
                                     <div className="mb-4 flex items-center gap-2">
-                                        <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium">{bike.category}</span>
+                                        <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
+                                            {typeof bike.category === 'string' ? bike.category : bike.category?.name || 'Uncategorized'}
+                                        </span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <p className="text-lg font-bold text-primary">₱{Number(bike.daily_rate).toLocaleString()}<span className="text-xs font-normal text-muted-foreground">/day</span></p>
@@ -252,19 +274,29 @@ export default function Welcome({ motorcycles = [] }: { motorcycles: Motorcycle[
                         <h2 className="mb-2 text-3xl font-bold tracking-tight">What Our Customers Say</h2>
                         <p className="text-muted-foreground">Real reviews from real riders</p>
                     </div>
-                    <div className="grid gap-6 md:grid-cols-3">
-                        {testimonials.map((t, i) => (
-                            <div key={i} className={`animate-fade-in-up delay-${(i + 1) * 100} rounded-xl border bg-card p-6 shadow-sm`}>
-                                <div className="mb-3 flex gap-0.5">
-                                    {Array.from({ length: t.rating }).map((_, j) => (
-                                        <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                                    ))}
+                    {reviews.length > 0 ? (
+                        <div className="grid gap-6 md:grid-cols-3">
+                            {reviews.map((t, i) => (
+                                <div key={t.id} className={`animate-fade-in-up delay-${(i + 1) * 100} rounded-xl border bg-card p-6 shadow-sm`}>
+                                    <div className="mb-3 flex gap-0.5">
+                                        {Array.from({ length: 5 }).map((_, j) => (
+                                            <Star key={j} className={`h-4 w-4 ${j < t.rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/20'}`} />
+                                        ))}
+                                    </div>
+                                    <p className="mb-4 text-sm text-muted-foreground">"{t.comment}"</p>
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm font-semibold">— {t.customer.user.name}</p>
+                                        <p className="text-[10px] text-muted-foreground">{new Date(t.created_at).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
-                                <p className="mb-4 text-sm text-muted-foreground">"{t.text}"</p>
-                                <p className="text-sm font-semibold">— {t.name}</p>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-12 text-center bg-muted/20 rounded-3xl border border-dashed">
+                            <Star className="mb-3 h-10 w-10 text-muted-foreground/20" />
+                            <p className="text-sm font-medium text-muted-foreground">No reviews yet. Be the first to share your experience!</p>
+                        </div>
+                    )}
                 </div>
             </section>
 

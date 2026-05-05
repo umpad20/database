@@ -14,13 +14,21 @@ class Motorcycle extends Model
     protected $fillable = [
         'brand',
         'model',
-        'category',
+        'category_id',
         'daily_rate',
         'status',
         'image_path',
         'plate_number',
+        'engine_no',
+        'chassis_no',
         'year',
+        'color',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     
     protected $casts = [
         'daily_rate' => 'decimal:2',

@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Motorcycle } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Bike, Calendar, CheckCircle2, ChevronLeft, ChevronRight, FileText, Upload, ShieldCheck, XCircle } from 'lucide-react';
 import { useState } from 'react';
 
@@ -21,7 +21,10 @@ const terms = [
 ];
 
 export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }) {
-    const selectedBike = motorcycle || { id: 0, brand: 'Select a', model: 'Motorcycle First', daily_rate: 0, category: 'N/A', image_path: null };
+    const { auth } = usePage().props as any;
+    const customer = auth.user?.customer;
+    
+    const selectedBike = motorcycle || { id: 0, brand: 'Select a', model: 'Motorcycle First', daily_rate: 0, category_id: null, category: { name: 'N/A' } as any, image_path: null };
     const [step, setStep] = useState(1);
     const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -34,6 +37,10 @@ export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }
         phone: string;
         address: string;
         license_number: string;
+        middle_name: string;
+        gender: string;
+        date_of_birth: string;
+        license_expiry_date: string;
         fulfillment_type: string;
         pickup_location: string;
         return_location: string;
@@ -43,9 +50,13 @@ export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }
         end_date: '',
         id_document: null,
         license_document: null,
-        phone: '',
-        address: '',
-        license_number: '',
+        phone: customer?.phone || '',
+        address: customer?.address || '',
+        license_number: customer?.license_number || '',
+        middle_name: customer?.middle_name || '',
+        gender: customer?.gender || '',
+        date_of_birth: customer?.date_of_birth || '',
+        license_expiry_date: customer?.license_expiry_date || '',
         fulfillment_type: 'pickup',
         pickup_location: 'Main Shop - Butuan City',
         return_location: 'Main Shop - Butuan City',
@@ -66,7 +77,15 @@ export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }
     const canProceed = () => {
         if (!data.motorcycle_id || data.motorcycle_id === 0) return false;
         if (step === 1) return data.start_date && data.end_date && days > 0;
-        if (step === 2) return agreedToTerms && data.id_document !== null && data.license_document !== null && data.phone && data.address && data.license_number;
+        if (step === 2) return agreedToTerms && 
+            data.id_document !== null && 
+            data.license_document !== null && 
+            data.phone && 
+            data.address && 
+            data.license_number &&
+            data.gender &&
+            data.date_of_birth &&
+            data.license_expiry_date;
         return true;
     };
 
@@ -245,6 +264,40 @@ export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }
 
                                     <div className="grid gap-6 sm:grid-cols-2">
                                         <div className="space-y-2">
+                                            <label className="text-sm font-semibold">Middle Name (Optional)</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Your middle name"
+                                                value={data.middle_name}
+                                                onChange={(e) => setData('middle_name', e.target.value)}
+                                                className="w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold">Gender</label>
+                                            <select
+                                                value={data.gender}
+                                                onChange={(e) => setData('gender', e.target.value)}
+                                                className={`w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 ${errors.gender ? 'border-destructive' : ''}`}
+                                            >
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            {errors.gender && <p className="text-xs text-destructive">{errors.gender}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold">Date of Birth</label>
+                                            <input
+                                                type="date"
+                                                value={data.date_of_birth}
+                                                onChange={(e) => setData('date_of_birth', e.target.value)}
+                                                className={`w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 ${errors.date_of_birth ? 'border-destructive' : ''}`}
+                                            />
+                                            {errors.date_of_birth && <p className="text-xs text-destructive">{errors.date_of_birth}</p>}
+                                        </div>
+                                        <div className="space-y-2">
                                             <label className="text-sm font-semibold">Phone Number</label>
                                             <input
                                                 type="text"
@@ -265,6 +318,16 @@ export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }
                                                 className={`w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 ${errors.license_number ? 'border-destructive' : ''}`}
                                             />
                                             {errors.license_number && <p className="text-xs text-destructive">{errors.license_number}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-semibold">License Expiry Date</label>
+                                            <input
+                                                type="date"
+                                                value={data.license_expiry_date}
+                                                onChange={(e) => setData('license_expiry_date', e.target.value)}
+                                                className={`w-full rounded-xl border bg-background px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 ${errors.license_expiry_date ? 'border-destructive' : ''}`}
+                                            />
+                                            {errors.license_expiry_date && <p className="text-xs text-destructive">{errors.license_expiry_date}</p>}
                                         </div>
                                         <div className="col-span-2 space-y-2">
                                             <label className="text-sm font-semibold">Home Address</label>
@@ -442,7 +505,7 @@ export default function RentalCreate({ motorcycle }: { motorcycle?: Motorcycle }
                                     <div>
                                         <h4 className="font-bold text-lg leading-tight">{selectedBike.brand} {selectedBike.model}</h4>
                                         <span className="inline-block mt-1 rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                                            {selectedBike.category}
+                                            {typeof selectedBike.category === 'string' ? selectedBike.category : selectedBike.category?.name || 'N/A'}
                                         </span>
                                     </div>
                                 </div>

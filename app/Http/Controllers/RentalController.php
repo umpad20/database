@@ -21,29 +21,39 @@ class RentalController extends Controller
             'phone' => 'required|string|max:20',
             'address' => 'required|string|max:500',
             'license_number' => 'required|string|max:50',
+            'middle_name' => 'nullable|string|max:255',
+            'gender' => 'required|string|in:Male,Female,Other',
+            'date_of_birth' => 'required|date',
+            'license_expiry_date' => 'required|date',
             'fulfillment_type' => 'required|string|in:pickup,delivery',
             'pickup_location' => 'required|string|max:255',
             'return_location' => 'required|string|max:255',
         ]);
 
         $motorcycle = Motorcycle::findOrFail($validated['motorcycle_id']);
+
+        if ($motorcycle->status !== 'Available') {
+            return redirect()->back()->with('error', 'Sorry, this motorcycle is no longer available for rent.');
+        }
+
         $user = auth()->user();
         
         // Update customer profile with newest info
         $customer = $user->customer;
+        $profileData = [
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'license_number' => $validated['license_number'],
+            'middle_name' => $validated['middle_name'] ?? null,
+            'gender' => $validated['gender'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'license_expiry_date' => $validated['license_expiry_date'],
+        ];
+
         if (!$customer) {
-            $customer = Customer::create([
-                'user_id' => $user->id,
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
-                'license_number' => $validated['license_number'],
-            ]);
+            $customer = Customer::create(array_merge(['user_id' => $user->id], $profileData));
         } else {
-            $customer->update([
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
-                'license_number' => $validated['license_number'],
-            ]);
+            $customer->update($profileData);
         }
 
         $startDate = Carbon::parse($validated['start_date']);

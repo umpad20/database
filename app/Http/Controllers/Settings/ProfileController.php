@@ -29,13 +29,28 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->safe()->only(['name', 'email']));
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
+
+        // Update or Create Customer Profile
+        $user->customer()->updateOrCreate(
+            ['user_id' => $user->id],
+            $request->safe()->only([
+                'middle_name', 
+                'gender', 
+                'date_of_birth', 
+                'phone', 
+                'address', 
+                'license_number', 
+                'license_expiry_date'
+            ])
+        );
 
         return to_route('profile.edit');
     }

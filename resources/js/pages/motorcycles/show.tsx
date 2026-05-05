@@ -8,7 +8,7 @@ export default function MotorcycleShow({ motorcycle }: { motorcycle: Motorcycle 
     const specs = [
         { label: 'Brand', value: motorcycle.brand, icon: Bike },
         { label: 'Model', value: motorcycle.model, icon: Bike },
-        { label: 'Category', value: motorcycle.category, icon: Shield },
+        { label: 'Category', value: typeof motorcycle.category === 'string' ? motorcycle.category : motorcycle.category?.name || 'N/A', icon: Shield },
         { label: 'Year', value: motorcycle.year, icon: Calendar },
         { label: 'Plate Number', value: motorcycle.plate_number, icon: Hash },
     ];
@@ -61,7 +61,7 @@ export default function MotorcycleShow({ motorcycle }: { motorcycle: Motorcycle 
                                 <div className="mb-4 flex items-start justify-between">
                                     <div>
                                         <span className="mb-1 inline-block rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                                            {motorcycle.category}
+                                            {typeof motorcycle.category === 'string' ? motorcycle.category : motorcycle.category?.name || 'N/A'}
                                         </span>
                                         <h1 className="text-2xl font-bold">{motorcycle.brand} {motorcycle.model}</h1>
                                         <p className="text-sm text-muted-foreground">{motorcycle.year} • {motorcycle.plate_number}</p>

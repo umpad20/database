@@ -24,7 +24,8 @@ export default function MotorcycleIndex({ motorcycles = [] }: { motorcycles: Mot
     const filtered = motorcycles
         .filter((m) => {
             const matchesSearch = `${m.brand} ${m.model}`.toLowerCase().includes(search.toLowerCase());
-            const matchesCategory = selectedCategory === 0 || m.category === allCategories.find(c => c.id === selectedCategory)?.name;
+            const categoryName = typeof m.category === 'string' ? m.category : m.category?.name;
+            const matchesCategory = selectedCategory === 0 || categoryName === allCategories.find(c => c.id === selectedCategory)?.name;
             return matchesSearch && matchesCategory;
         })
         .sort((a, b) => {
@@ -110,7 +111,9 @@ export default function MotorcycleIndex({ motorcycles = [] }: { motorcycles: Mot
                                 <div className="absolute right-3 top-3">
                                     <StatusBadge status={bike.status} />
                                 </div>
-                                <span className="absolute left-3 top-3 rounded-md bg-card/80 px-2 py-1 text-xs font-medium backdrop-blur-sm">{bike.category}</span>
+                                <span className="absolute left-3 top-3 rounded-md bg-card/80 px-2 py-1 text-xs font-medium backdrop-blur-sm">
+                                    {typeof bike.category === 'string' ? bike.category : bike.category?.name || 'N/A'}
+                                </span>
                             </div>
                             <div className="p-5">
                                 <h3 className="mb-1 text-lg font-semibold">{bike.brand} {bike.model}</h3>

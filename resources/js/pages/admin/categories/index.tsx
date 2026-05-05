@@ -12,7 +12,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface CategoryItem {
     id: number;
     name: string;
-    count: number;
+    motorcycles_count: number;
     description: string;
 }
 
@@ -20,8 +20,8 @@ export default function CategoryManagement({ categories = [] }: { categories: Ca
     const [newCategory, setNewCategory] = useState('');
 
     const totalCategories = categories.length;
-    const totalBikes = categories.reduce((sum, cat) => sum + cat.count, 0);
-    const popularCategory = categories.length > 0 ? categories.reduce((prev, current) => (prev.count > current.count) ? prev : current).name : 'N/A';
+    const totalBikes = categories.reduce((sum, cat) => sum + cat.motorcycles_count, 0);
+    const popularCategory = categories.length > 0 ? categories.reduce((prev, current) => (prev.motorcycles_count > current.motorcycles_count) ? prev : current).name : 'N/A';
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -96,7 +96,7 @@ export default function CategoryManagement({ categories = [] }: { categories: Ca
                                     <div className="flex items-center justify-between">
                                         <span className="text-xs text-muted-foreground">Inventory count</span>
                                         <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-                                            {cat.count} Units
+                                            {cat.motorcycles_count} Units
                                         </span>
                                     </div>
                                 </div>

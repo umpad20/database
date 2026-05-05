@@ -16,13 +16,14 @@ use App\Http\Controllers\Admin\PaymentController;
 // ===== PUBLIC PAGES =====
 Route::get('/', function () {
     return Inertia::render('welcome', [
-        'motorcycles' => Motorcycle::where('status', 'Available')->take(6)->get()
+        'motorcycles' => Motorcycle::where('status', 'Available')->take(6)->get(),
+        'reviews' => \App\Models\SystemReview::with('customer.user')->where('is_visible', true)->latest()->take(6)->get()
     ]);
 })->name('home');
 
 Route::get('/motorcycles', function () {
     return Inertia::render('motorcycles/index', [
-        'motorcycles' => Motorcycle::all()
+        'motorcycles' => Motorcycle::where('status', 'Available')->get()
     ]);
 })->name('motorcycles.index');
 
@@ -70,7 +71,7 @@ Route::middleware(['auth'])->group(function () {
 
             $currentRental = Rental::where('customer_id', $customer->id)
                 ->whereIn('status', ['pending', 'approved', 'paid', 'active'])
-                ->with('motorcycle')
+                ->with(['motorcycle', 'payment'])
                 ->latest()
                 ->first();
         }
@@ -102,7 +103,7 @@ Route::middleware(['auth'])->group(function () {
 
         if ($customer) {
             $rentals = Rental::where('customer_id', $customer->id)
-                ->with('motorcycle')
+                ->with(['motorcycle', 'payment', 'review'])
                 ->latest()
                 ->get();
         }
@@ -143,7 +144,8 @@ Route::middleware(['auth'])->group(function () {
         // Fleet Management
         Route::get('motorcycles', function () {
             return Inertia::render('admin/motorcycles/index', [
-                'motorcycles' => Motorcycle::all()
+                'motorcycles' => Motorcycle::with('category')->get(),
+                'categories' => \App\Models\Category::all()
             ]);
         })->name('motorcycles');
 
@@ -183,21 +185,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Category Management
         Route::get('categories', function () {
-            $categories = Motorcycle::select('category')
-                ->selectRaw('count(*) as count')
-                ->groupBy('category')
-                ->get()
-                ->map(function($item, $index) {
-                    return [
-                        'id' => $index + 1,
-                        'name' => $item->category,
-                        'count' => $item->count,
-                        'description' => 'Motorcycles classified under ' . $item->category . '.'
-                    ];
-                });
-
             return Inertia::render('admin/categories/index', [
-                'categories' => $categories
+                'categories' => \App\Models\Category::withCount('motorcycles')->get()
             ]);
         })->name('categories');
 
@@ -216,6 +205,7 @@ Route::middleware(['auth'])->group(function () {
         })->name('reports');
     });
     Route::post('rentals/{rental}/pay', [App\Http\Controllers\PaymentController::class, 'store'])->name('rentals.pay');
+    Route::post('reviews', [App\Http\Controllers\SystemReviewController::class, 'store'])->name('reviews.store');
 });
 
 require __DIR__.'/settings.php';

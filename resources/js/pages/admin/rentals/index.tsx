@@ -35,6 +35,10 @@ interface RentalRecord {
         phone: string;
         address: string;
         license_number: string;
+        middle_name?: string | null;
+        gender?: string | null;
+        date_of_birth?: string | null;
+        license_expiry_date?: string | null;
         user?: {
             name: string;
             email: string;
@@ -209,11 +213,21 @@ export default function RentalManagement({ rentals = [] }: { rentals: RentalReco
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">{selectedRental.customer?.user?.name?.[0]}</div>
                                                 <div>
-                                                    <p className="font-bold">{selectedRental.customer?.user?.name}</p>
+                                                    <p className="font-bold">
+                                                        {selectedRental.customer?.user?.name} {selectedRental.customer?.middle_name ? `(${selectedRental.customer.middle_name})` : ''}
+                                                    </p>
                                                     <p className="text-xs text-muted-foreground">{selectedRental.customer?.user?.email}</p>
                                                 </div>
                                             </div>
                                             <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-muted">
+                                                <div>
+                                                    <p className="text-muted-foreground text-[10px] uppercase font-bold">Gender</p>
+                                                    <p className="font-medium">{selectedRental.customer?.gender || 'N/A'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-muted-foreground text-[10px] uppercase font-bold">Birth Date</p>
+                                                    <p className="font-medium">{selectedRental.customer?.date_of_birth ? formatDate(selectedRental.customer.date_of_birth) : 'N/A'}</p>
+                                                </div>
                                                 <div>
                                                     <p className="text-muted-foreground text-[10px] uppercase font-bold">Phone</p>
                                                     <p className="font-medium">{selectedRental.customer?.phone || 'N/A'}</p>
@@ -221,6 +235,10 @@ export default function RentalManagement({ rentals = [] }: { rentals: RentalReco
                                                 <div>
                                                     <p className="text-muted-foreground text-[10px] uppercase font-bold">License #</p>
                                                     <p className="font-medium">{selectedRental.customer?.license_number || 'N/A'}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-muted-foreground text-[10px] uppercase font-bold">License Expiry</p>
+                                                    <p className="font-bold text-orange-600">{selectedRental.customer?.license_expiry_date ? formatDate(selectedRental.customer.license_expiry_date) : 'N/A'}</p>
                                                 </div>
                                                 <div className="col-span-2">
                                                     <p className="text-muted-foreground text-[10px] uppercase font-bold">Address</p>

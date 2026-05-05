@@ -10,9 +10,13 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Admin Dashboard', href: '/admin
 interface CustomerRecord {
     id: number;
     user_id: number;
+    middle_name: string | null;
+    gender: string | null;
+    date_of_birth: string | null;
     phone: string | null;
     address: string | null;
     license_number: string | null;
+    license_expiry_date: string | null;
     created_at: string;
     user?: {
         name: string;
@@ -53,8 +57,18 @@ export default function CustomerManagement({ customers = [] }: { customers: Cust
                                                 </div>
                                             </td>
                                             <td className="whitespace-nowrap px-5 py-4"><p className="text-sm">{c.user?.email}</p><p className="text-xs text-muted-foreground">{c.phone || 'N/A'}</p></td>
-                                            <td className="whitespace-nowrap px-5 py-4"><p className="text-sm font-mono">{c.license_number || 'N/A'}</p></td>
-                                            <td className="whitespace-nowrap px-5 py-4 text-sm">{c.address || 'N/A'}</td>
+                                            <td className="whitespace-nowrap px-5 py-4">
+                                                <p className="text-sm font-mono">{c.license_number || 'N/A'}</p>
+                                                {c.license_expiry_date && (
+                                                    <p className={`text-[10px] font-bold ${new Date(c.license_expiry_date) < new Date() ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                                        Exp: {c.license_expiry_date}
+                                                    </p>
+                                                )}
+                                            </td>
+                                            <td className="whitespace-nowrap px-5 py-4">
+                                                <p className="text-sm">{c.address || 'N/A'}</p>
+                                                <p className="text-xs text-muted-foreground">{c.gender || 'N/A'} • {c.date_of_birth || 'N/A'}</p>
+                                            </td>
                                             <td className="whitespace-nowrap px-5 py-4"><button className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"><Eye className="h-4 w-4" /></button></td>
                                         </tr>
                                     ))}

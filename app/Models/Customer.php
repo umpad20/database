@@ -13,9 +13,18 @@ class Customer extends Model
 
     protected $fillable = [
         'user_id',
+        'middle_name',
+        'gender',
+        'date_of_birth',
         'phone',
         'address',
         'license_number',
+        'license_expiry_date',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'license_expiry_date' => 'date',
     ];
 
     public function user(): BelongsTo

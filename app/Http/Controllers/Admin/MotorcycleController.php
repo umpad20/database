@@ -17,8 +17,11 @@ class MotorcycleController extends Controller
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'plate_number' => 'required|string|unique:motorcycles,plate_number',
             'daily_rate' => 'required|numeric|min:0',
-            'category' => 'required|string',
-            'image' => 'nullable|image|max:2048', // 2MB max
+            'category_id' => 'required|exists:categories,id',
+            'engine_no' => 'required|string|max:255',
+            'chassis_no' => 'required|string|max:255',
+            'color' => 'required|string|max:50',
+            'image' => 'nullable|image|max:2048',
         ]);
 
         $imagePath = null;
@@ -32,7 +35,10 @@ class MotorcycleController extends Controller
             'year' => $validated['year'],
             'plate_number' => $validated['plate_number'],
             'daily_rate' => $validated['daily_rate'],
-            'category' => $validated['category'],
+            'category_id' => $validated['category_id'],
+            'engine_no' => $validated['engine_no'],
+            'chassis_no' => $validated['chassis_no'],
+            'color' => $validated['color'],
             'image_path' => $imagePath,
             'status' => 'Available',
         ]);
@@ -48,7 +54,10 @@ class MotorcycleController extends Controller
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'plate_number' => 'required|string|unique:motorcycles,plate_number,' . $motorcycle->id,
             'daily_rate' => 'required|numeric|min:0',
-            'category' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'engine_no' => 'required|string|max:255',
+            'chassis_no' => 'required|string|max:255',
+            'color' => 'required|string|max:50',
             'status' => 'required|string',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -77,6 +86,10 @@ class MotorcycleController extends Controller
 
     public function toggleMaintenance(Motorcycle $motorcycle)
     {
+        if ($motorcycle->status === 'Rented' || $motorcycle->status === 'Reserved') {
+            return redirect()->back()->with('error', 'Cannot put a rented or reserved motorcycle into maintenance.');
+        }
+
         $motorcycle->status = $motorcycle->status === 'Maintenance' ? 'Available' : 'Maintenance';
         $motorcycle->save();
 

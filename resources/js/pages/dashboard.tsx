@@ -145,14 +145,16 @@ export default function Dashboard({ stats, recentRentals = [], currentRental }: 
                                                         <div className="rounded-xl bg-green-50 border border-green-100 p-4 flex items-center gap-3">
                                                             <CheckCircle2 className="h-5 w-5 text-green-600" />
                                                             <div>
-                                                                <p className="text-xs text-green-800 leading-tight font-bold mb-0.5">Confirmation Received!</p>
+                                                                <p className="text-xs text-green-800 leading-tight font-bold mb-0.5">
+                                                                    {currentRental.payment?.status === 'pending' ? 'Request Confirmed!' : 'Confirmation Received!'}
+                                                                </p>
                                                                 <p className="text-[11px] text-green-700 leading-tight">
-                                                                    {currentRental.fulfillment_type === 'delivery' 
-                                                                        ? (stats.payment_due > 0 
+                                                                    {currentRental.payment?.method === 'Cash on Pickup' 
+                                                                        ? (currentRental.fulfillment_type === 'delivery' 
                                                                             ? "Confirmed! Please prepare your payment. Our team will deliver the unit to your address shortly."
-                                                                            : "Payment received! Our team will deliver the unit to your address shortly.")
-                                                                        : (stats.payment_due > 0 
-                                                                            ? "Please proceed to the shop to pay and pick up your unit." 
+                                                                            : "Please proceed to the shop to pay and pick up your unit.")
+                                                                        : (currentRental.fulfillment_type === 'delivery' 
+                                                                            ? "Payment received! Our team will deliver the unit to your address shortly."
                                                                             : "Payment received! Please proceed to the shop for unit pickup.")
                                                                     }
                                                                 </p>

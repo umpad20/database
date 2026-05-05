@@ -27,6 +27,14 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+
+            'middle_name' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
+            'date_of_birth' => ['nullable', 'date'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'license_number' => ['nullable', 'string', 'max:50'],
+            'license_expiry_date' => ['nullable', 'date'],
         ];
     }
 }

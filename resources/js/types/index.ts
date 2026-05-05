@@ -43,30 +43,39 @@ export interface User {
 // ===== ERD ENTITY TYPES =====
 
 export interface Category {
-    category_id: number;
-    category_name: string;
+    id: number;
+    name: string;
+    description: string | null;
 }
 
 export interface Motorcycle {
     id: number;
     brand: string;
     model: string;
-    category: string;
+    category_id: number | null;
     daily_rate: number;
     status: string;
     image_path?: string | null;
     plate_number: string;
+    engine_no: string;
+    chassis_no: string;
     year: number;
+    color: string;
     created_at?: string;
     updated_at?: string;
+    category?: Category;
 }
 
 export interface Customer {
     id: number;
     user_id: number;
+    middle_name: string | null;
+    gender: string | null;
+    date_of_birth: string | null;
     phone: string | null;
     address: string | null;
     license_number: string | null;
+    license_expiry_date: string | null;
     created_at?: string;
     updated_at?: string;
     user?: User;
@@ -95,15 +104,17 @@ export interface Rental {
     updated_at?: string;
     customer?: Customer;
     motorcycle?: Motorcycle;
+    payment?: Payment;
 }
 
 export interface Payment {
-    payment_id: number;
+    id: number;
     rental_id: number;
-    payment_date: string;
-    payment_method: 'cash' | 'gcash' | 'bank_transfer' | 'cod';
     amount: number;
-    payment_status: 'pending' | 'paid' | 'failed' | 'refunded';
+    method: string;
+    status: string;
+    transaction_id: string | null;
+    paid_at: string | null;
     rental?: Rental;
 }
 

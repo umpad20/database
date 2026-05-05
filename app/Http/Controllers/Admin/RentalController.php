@@ -13,10 +13,16 @@ class RentalController extends Controller
     {
         $rental->update(['status' => 'approved']);
         
-        // Mark bike as Reserved so others can't request it for the same dates
+        // Mark bike as Reserved so others can't request it
         $rental->motorcycle->update(['status' => 'Reserved']);
+
+        // Auto-reject other PENDING requests for this same bike
+        Rental::where('motorcycle_id', $rental->motorcycle_id)
+            ->where('status', 'pending')
+            ->where('id', '!=', $rental->id)
+            ->update(['status' => 'rejected']);
         
-        return redirect()->back()->with('success', 'Rental approved and unit reserved!');
+        return redirect()->back()->with('success', 'Rental approved! Other pending requests for this bike have been automatically rejected.');
     }
 
     public function reject(Rental $rental)

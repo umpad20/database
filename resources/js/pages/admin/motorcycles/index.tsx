@@ -11,9 +11,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Fleet Management', href: '/admin/motorcycles' },
 ];
 
-import { type Motorcycle } from '@/types';
+import { type Motorcycle, type Category } from '@/types';
 
-export default function FleetManagement({ motorcycles = [] }: { motorcycles: Motorcycle[] }) {
+export default function FleetManagement({ 
+    motorcycles = [], 
+    categories = [] 
+}: { 
+    motorcycles: Motorcycle[],
+    categories: Category[]
+}) {
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [viewingMotorcycle, setViewingMotorcycle] = useState<Motorcycle | null>(null);
@@ -24,8 +30,11 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
         model: '',
         year: new Date().getFullYear(),
         plate_number: '',
+        engine_no: '',
+        chassis_no: '',
+        color: '',
         daily_rate: '',
-        category: 'Scooter',
+        category_id: categories.length > 0 ? categories[0].id.toString() : '',
         status: 'Available',
         image: null as File | null,
     });
@@ -48,8 +57,11 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
             model: motorcycle.model,
             year: motorcycle.year,
             plate_number: motorcycle.plate_number,
+            engine_no: motorcycle.engine_no || '',
+            chassis_no: motorcycle.chassis_no || '',
+            color: motorcycle.color || '',
             daily_rate: motorcycle.daily_rate.toString(),
-            category: motorcycle.category,
+            category_id: (motorcycle.category_id || '').toString(),
             status: motorcycle.status,
             image: null,
         });
@@ -180,7 +192,7 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-4 text-sm font-mono">{bike.plate_number}</td>
                                         <td className="whitespace-nowrap px-5 py-4">
-                                            <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">{bike.category}</span>
+                                            <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">{bike.category?.name || 'Uncategorized'}</span>
                                         </td>
                                         <td className="whitespace-nowrap px-5 py-4 text-sm font-semibold">₱{Number(bike.daily_rate).toLocaleString()}</td>
                                         <td className="whitespace-nowrap px-5 py-4">
@@ -202,8 +214,21 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
                                                 </button>
                                                 <button 
                                                     onClick={() => handleToggleMaintenance(bike.id)}
-                                                    className={`rounded-lg p-2 transition-colors ${bike.status === 'Maintenance' ? 'bg-orange-100 text-orange-600' : 'text-muted-foreground hover:bg-orange-100 hover:text-orange-600'}`} 
-                                                    title={bike.status === 'Maintenance' ? 'Finish Maintenance' : 'Start Maintenance'}
+                                                    disabled={bike.status === 'Rented' || bike.status === 'Reserved'}
+                                                    className={`rounded-lg p-2 transition-colors ${
+                                                        bike.status === 'Maintenance' 
+                                                            ? 'bg-orange-100 text-orange-600' 
+                                                            : (bike.status === 'Rented' || bike.status === 'Reserved')
+                                                                ? 'text-muted-foreground/30 cursor-not-allowed'
+                                                                : 'text-muted-foreground hover:bg-orange-100 hover:text-orange-600'
+                                                    }`} 
+                                                    title={
+                                                        bike.status === 'Rented' || bike.status === 'Reserved'
+                                                            ? 'Cannot put rented unit to maintenance'
+                                                            : bike.status === 'Maintenance' 
+                                                                ? 'Finish Maintenance' 
+                                                                : 'Start Maintenance'
+                                                    }
                                                 >
                                                     <Wrench className="h-4 w-4" />
                                                 </button>
@@ -290,30 +315,65 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
                                     <div>
                                         <label className="mb-1 block text-sm font-medium">Category</label>
                                         <select 
-                                            className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-                                            value={data.category}
-                                            onChange={e => setData('category', e.target.value)}
+                                            className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary ${errors.category_id ? 'border-destructive' : ''}`}
+                                            value={data.category_id}
+                                            onChange={e => setData('category_id', e.target.value)}
                                         >
-                                            <option>Scooter</option>
-                                            <option>Automatic</option>
-                                            <option>Manual</option>
-                                            <option>Big Bike</option>
-                                            <option>Electric</option>
+                                            <option value="">Select Category</option>
+                                            {categories.map(cat => (
+                                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                            ))}
                                         </select>
+                                        {errors.category_id && <p className="mt-1 text-xs text-destructive">{errors.category_id}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">Engine No.</label>
+                                        <input 
+                                            className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary ${errors.engine_no ? 'border-destructive' : ''}`}
+                                            placeholder="Engine Number"
+                                            value={data.engine_no}
+                                            onChange={e => setData('engine_no', e.target.value)}
+                                        />
+                                        {errors.engine_no && <p className="mt-1 text-xs text-destructive">{errors.engine_no}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">Chassis No.</label>
+                                        <input 
+                                            className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary ${errors.chassis_no ? 'border-destructive' : ''}`}
+                                            placeholder="Chassis Number"
+                                            value={data.chassis_no}
+                                            onChange={e => setData('chassis_no', e.target.value)}
+                                        />
+                                        {errors.chassis_no && <p className="mt-1 text-xs text-destructive">{errors.chassis_no}</p>}
+                                    </div>
+                                    <div>
+                                        <label className="mb-1 block text-sm font-medium">Color</label>
+                                        <input 
+                                            className={`w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary ${errors.color ? 'border-destructive' : ''}`}
+                                            placeholder="Color"
+                                            value={data.color}
+                                            onChange={e => setData('color', e.target.value)}
+                                        />
+                                        {errors.color && <p className="mt-1 text-xs text-destructive">{errors.color}</p>}
                                     </div>
                                     {editingMotorcycle && (
                                         <div className="sm:col-span-2">
                                             <label className="mb-1 block text-sm font-medium">Status</label>
                                             <select 
-                                                className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                                                className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary disabled:opacity-50"
                                                 value={data.status}
                                                 onChange={e => setData('status', e.target.value)}
+                                                disabled={editingMotorcycle?.status === 'Rented' || editingMotorcycle?.status === 'Reserved'}
                                             >
                                                 <option>Available</option>
                                                 <option>Rented</option>
+                                                <option>Reserved</option>
                                                 <option>Maintenance</option>
                                                 <option>Unavailable</option>
                                             </select>
+                                            {(editingMotorcycle?.status === 'Rented' || editingMotorcycle?.status === 'Reserved') && (
+                                                <p className="mt-1 text-[10px] text-amber-600 font-medium italic">Status cannot be changed while unit is rented or reserved.</p>
+                                            )}
                                         </div>
                                     )}
                                     <div className="sm:col-span-2">
@@ -373,7 +433,7 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
                             <div className="p-6 space-y-6">
                                 <div>
                                     <h2 className="text-2xl font-bold">{viewingMotorcycle.brand} {viewingMotorcycle.model}</h2>
-                                    <p className="text-muted-foreground">{viewingMotorcycle.year} • {viewingMotorcycle.category}</p>
+                                    <p className="text-muted-foreground">{viewingMotorcycle.year} • {viewingMotorcycle.category?.name || 'Uncategorized'} • {viewingMotorcycle.color}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -384,6 +444,14 @@ export default function FleetManagement({ motorcycles = [] }: { motorcycles: Mot
                                     <div className="rounded-xl border p-4">
                                         <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Daily Rate</p>
                                         <p className="text-sm font-bold">₱{Number(viewingMotorcycle.daily_rate).toLocaleString()}</p>
+                                    </div>
+                                    <div className="rounded-xl border p-4">
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Engine No.</p>
+                                        <p className="text-sm font-bold">{viewingMotorcycle.engine_no}</p>
+                                    </div>
+                                    <div className="rounded-xl border p-4">
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Chassis No.</p>
+                                        <p className="text-sm font-bold">{viewingMotorcycle.chassis_no}</p>
                                     </div>
                                 </div>
 
